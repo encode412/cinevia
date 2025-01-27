@@ -1,0 +1,41 @@
+.container {
+  margin-bottom: 5rem;
+  width: 100%;
+
+  .stack_content {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    width: 25%;
+    flex-direction: row;
+    gap: 5px;
+    overflow: hidden;
+    @media only screen and (max-width: 767px) {
+      margin-top: 0px;
+      flex-direction: column;
+      width: 100%;
+    }
+    .select_container {
+      border: 1px solid #e8e8e8;
+      padding: 10px;
+      border-radius: 5px;
+      width: 100%;
+      margin-top: 1rem;
+
+      .select {
+        width: 100%;
+        padding: 0;
+        background-color: transparent;
+        color: #eee;
+        border: none;
+        outline: none;
+        font-size: 1rem;
+        font-family: var(--font-netflix-sans-regular);
+
+        .option {
+          color: #181818;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+}

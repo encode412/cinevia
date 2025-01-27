@@ -7,6 +7,9 @@ interface CustomButtonProps {
   width?: string;
   fontSize?: string | number;
   padding?: string | number;
+  type?: "button" | "submit" | "reset";
+  className?: string;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 const PrimaryButton = styled(Button)({
@@ -14,6 +17,7 @@ const PrimaryButton = styled(Button)({
   textTransform: "none",
   outline: "none",
   fontWeight: 500,
+  fontSize: 14,
   border: "none",
   lineHeight: 1.5,
   backgroundColor: "#B8001F",
@@ -23,8 +27,6 @@ const PrimaryButton = styled(Button)({
   },
   "&:active": {
     boxShadow: "none",
-    backgroundColor: "#0062cc",
-    borderColor: "#005cbf",
   },
   "&:focus": {
     boxShadow: "0 0 0 0.2rem rgba(0,123,255,.5)",
@@ -34,17 +36,21 @@ const PrimaryButton = styled(Button)({
 const CustomButton: React.FC<CustomButtonProps> = ({
   children,
   width = "fit-content",
-  fontSize = 14,
-  padding = '6px 14px', 
+  padding = "6px 14px",
+  type,
+  className,
+  onClick,
 }) => {
   return (
-    <PrimaryButton 
-      variant="contained" 
-      sx={{ 
-        width: width, 
-        fontSize: fontSize,
+    <PrimaryButton
+      type={type}
+      onClick={onClick}
+      variant="contained"
+      className={className}
+      sx={{
+        width: width,
         padding: padding,
-        fontFamily:"var(--font-netflix-sans-medium)"
+        fontFamily: "var(--font-netflix-sans-regular)",
       }}
     >
       {children}

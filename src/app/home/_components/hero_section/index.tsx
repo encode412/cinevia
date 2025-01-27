@@ -1,43 +1,63 @@
 "use client";
-import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import styles from "./index.module.scss";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import InputLabel from "@mui/material/InputLabel";
-import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
+import GoogleIcon from "@mui/icons-material/Google";
 
-import { visuallyHidden } from "@mui/utils";
-import { styled } from "@mui/material/styles";
 import { CustomButton } from "@/app/components";
 import CustomTypography from "@/app/components/typography";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "@/app/lib/firebaseConfig";
+import useUserStore from "@/app/lib/store";
 
-const StyledBox = styled("div")(({ theme }) => ({
-  alignSelf: "center",
-  width: "100%",
-  height: 400,
-  marginTop: theme.spacing(8),
-  borderRadius: theme.shape.borderRadius,
-  outline: "6px solid",
-  outlineColor: "hsla(220, 25%, 80%, 0.2)",
-  border: "1px solid",
-  borderColor: theme.palette.grey[200],
-  boxShadow: "0 0 12px 8px hsla(220, 25%, 80%, 0.2)",
-  backgroundImage: `url(${"/static/screenshots/material-ui/getting-started/templates/dashboard.jpg"})`,
-  backgroundSize: "cover",
-  [theme.breakpoints.up("sm")]: {
-    marginTop: theme.spacing(10),
-    height: 700,
-  },
-  ...theme.applyStyles("dark", {
-    boxShadow: "0 0 24px 12px hsla(210, 100%, 25%, 0.2)",
-    backgroundImage: `url(${"/static/screenshots/material-ui/getting-started/templates/dashboard-dark.jpg"})`,
-    outlineColor: "hsla(220, 20%, 42%, 0.1)",
-    borderColor: theme.palette.grey[700],
-  }),
-}));
+const HeroSection = () => {
+  const router = useRouter();
+  const { user, setUser } = useUserStore();
+  const [signedIn, setSignedIn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export default function HeroSection() {
+  const provider = new GoogleAuthProvider();
+
+  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result?.user;
+
+      const response = await fetch(user?.photoURL ?? "");
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64String = event.target?.result;
+
+        setUser({
+          id: user.uid,
+          name: user.displayName || "",
+          email: user.email || "",
+          photo: base64String ?? null,
+        });
+      };
+      reader.readAsDataURL(blob);
+
+      setSignedIn(true);
+      router.push("/dashboard");
+    } catch (error: any) {
+      if (error.code === "auth/popup-closed-by-user") {
+        setError("");
+      } else {
+        setError(error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user]);
+
   return (
     <Box id="hero">
       <Container
@@ -50,16 +70,19 @@ export default function HeroSection() {
         }}
       >
         <Stack
-          spacing={4}
+          spacing={3}
           useFlexGap
-          sx={{ alignItems: "center", width: { xs: "100%", sm: "70%" } }}
+          sx={{
+            alignItems: "center",
+            gap: "20px",
+            width: { xs: "100%", sm: "70%" },
+          }}
         >
           <CustomTypography
             variant="h1"
             fontFamily="var(--font-netflix-sans-bold)"
             sx={{
               textAlign: "center",
-              fontSize: "clamp(4.1rem, 20vw, 3.8rem)",
             }}
           >
             Unlimited movies, TV shows, and more
@@ -72,75 +95,45 @@ export default function HeroSection() {
           >
             Starts at ₦2,200. Cancel anytime.
           </CustomTypography>
+
+          <CustomTypography sx={{ textAlign: "center" }}>
+            Ready to watch? Sign up to begin or restart your membership.{" "}
+            {/* <Link href="#" color="primary">
+              Terms & Conditions
+            </Link> */}
+          </CustomTypography>
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={1}
             useFlexGap
             sx={{ pt: 2, width: { xs: "100%", sm: "700px" } }}
           >
-            <InputLabel htmlFor="email-hero" sx={visuallyHidden}>
-              Email
-            </InputLabel>
-            <TextField
-              id="email"
-              hiddenLabel
-              size="small"
-              variant="outlined"
-              aria-label="Enter your email address"
-              placeholder="Email address"
-              fullWidth
-              sx={{
-                width: "100%",
-                textAlign: "center",
-                "& .MuiInputBase-input": {
-                  "&::placeholder": {
-                    color: "#FFFFFF",
-                  },
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused": {
-                    outline: "none",
-                    border: "1px solid #FFFFFF",
-                    boxShadow: "0 0 0 1px #FFFFFF",
-                  },
-                },
-              }}
-              slotProps={{
-                input: {
-                  sx: {
-                    border: "1px solid #e8e8e8",
-                    outline: "none",
-                    fontWeight: "900",
-                    padding: "6px",
-                    "&:focus": {
-                      border: "1px solid #FFFFFF",
-                      boxShadow: "0 0 0 1px #FFFFFF",
-                    },
-                    "&::placeholder": {
-                      color: "#FFFFFF",
-                    },
-                    color: "#FFFFFF",
-                  },
-                },
-              }}
-            />
-            <CustomButton width="50%" fontSize={28}>
-              Get started
+            <CustomButton
+              width="30%"
+              type="submit"
+              className={styles.button_styles}
+              onClick={handleGoogleSignIn}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "60%",
+                  gap: "2px",
+                }}
+              >
+                <span>Sign up</span>
+                <GoogleIcon />
+              </div>
             </CustomButton>
           </Stack>
-          <CustomTypography
-            sx={{ textAlign: "center" }}
-          >
-          Ready to watch? Enter your email to create or restart your membership.
-          {" "}
-            <Link href="#" color="primary">
-              Terms & Conditions
-            </Link>
-            .
-          </CustomTypography>
+          {error && <CustomTypography>{error}</CustomTypography>}
         </Stack>
         {/* <StyledBox id="image" /> */}
       </Container>
     </Box>
   );
-}
+};
+
+export default HeroSection;

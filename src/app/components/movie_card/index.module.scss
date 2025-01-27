@@ -1,0 +1,31 @@
+.card_container {
+  &:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  .image {
+    width: 205px;
+    height: 280px;
+    border-radius: 5px;
+  }
+  .rank {
+    position: absolute;
+    bottom: -9px;
+    left: -22px;
+    font-size: 6rem;
+    color: #b8001f;
+    font-family: var(--font-netflix-sans-bold);
+  }
+
+  @media only screen and (max-width: 767px) {
+    .image {
+      width: 140px;
+      height: auto;
+    }
+    .rank {
+      font-size: 3rem;
+      left: -7px;
+    }
+  }
+}
